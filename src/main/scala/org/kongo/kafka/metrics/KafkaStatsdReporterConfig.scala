@@ -22,7 +22,7 @@ class KafkaStatsdReporterConfig(props: VerifiableProperties) extends KafkaMetric
 
   val exclude: Option[Pattern] = pattern("exclude")
 
-  lazy val predicate: RegexMetricPredicate = RegexMetricPredicate(include, exclude)
+  val predicate: RegexMetricPredicate = RegexMetricPredicate(include, exclude)
 
   private def pattern(key: String): Option[Pattern] = {
     val propsKey = s"${ ConfigBase }.${ key }"
