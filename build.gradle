@@ -1,0 +1,38 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.1'
+    }
+}
+
+group = 'org.kongo.kafka.metrics'
+description = 'kafka metrics reporter for StatsD'
+version = '0.1'
+
+defaultTasks 'build'
+
+apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'scala'
+apply plugin: 'java'
+
+ext {
+    scalaVersion = '2.11'
+    kafkaVersion = '0.11.0.0'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile "com.indeed:java-dogstatsd-client:2.0.11"
+    compile "org.apache.kafka:kafka_$scalaVersion:$kafkaVersion"
+}
+
+shadowJar {
+    dependencies {
+        exclude(dependency("org.apache.kafka:kafka_$scalaVersion:$kafkaVersion"))
+    }
+}
