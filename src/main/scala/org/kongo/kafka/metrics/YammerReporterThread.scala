@@ -22,6 +22,8 @@ import scala.language.implicitConversions
 private class YammerReporterThread(registry: MetricsRegistry, config: KafkaStatsdReporterConfig)
   extends AbstractPollingReporter(registry, KafkaStatsdReporter.Name) with MetricProcessor[Long] with Logging {
 
+  logger.info(s"initializting yammer reporter thread - statsd client connecting to ${ statsdHost }")
+
   private val statsd = new NonBlockingStatsDClient(config.prefix, config.host, config.port)
 
   override def run(): Unit = {
@@ -34,6 +36,8 @@ private class YammerReporterThread(registry: MetricsRegistry, config: KafkaStats
 
   override def shutdown(): Unit = {
     super.shutdown()
+
+    logger.info(s"stopping statsd client at ${ statsdHost }")
     statsd.stop()
   }
 
@@ -84,40 +88,44 @@ private class YammerReporterThread(registry: MetricsRegistry, config: KafkaStats
     RegexMetricPredicate.build(name)
   }
 
-  private def sendGauge(name: String, dim: String, value: Double): Unit = {
-    statsd.gauge(name + "." + dim, value)
+  private def sendGauge(name: String, dim: Dimension, value: Double): Unit = {
+    if (config.dimensions.contains(dim))
+      statsd.gauge(name + "." + dim.name, value)
   }
 
-  private def sendGauge(name: String, dim: String, value: Long): Unit = {
-    statsd.gauge(name + "." + dim, value)
+  private def sendGauge(name: String, dim: Dimension, value: Long): Unit = {
+    if (config.dimensions.contains(dim))
+      statsd.gauge(name + "." + dim.name, value)
   }
 
   private def processSum(name: String, sum: Summarizable): Unit = {
-    sendGauge(name, "min", sum.min())
-    sendGauge(name, "max", sum.max())
-    sendGauge(name, "stddev", sum.stdDev())
-    sendGauge(name, "mean", sum.mean())
-    sendGauge(name, "sum", sum.sum())
+    sendGauge(name, Dimension.Min, sum.min())
+    sendGauge(name, Dimension.Max, sum.max())
+    sendGauge(name, Dimension.StdDev, sum.stdDev())
+    sendGauge(name, Dimension.Mean, sum.mean())
+    sendGauge(name, Dimension.Sum, sum.sum())
   }
 
   private def processMetered(name: String, meter: Metered): Unit = {
-    sendGauge(name, "count", meter.count())
-    sendGauge(name, "meanRate", meter.meanRate())
-    sendGauge(name, "rate1m", meter.oneMinuteRate())
-    sendGauge(name, "rate5m", meter.fiveMinuteRate())
-    sendGauge(name, "rate15m", meter.fifteenMinuteRate())
+    sendGauge(name, Dimension.Count, meter.count())
+    sendGauge(name, Dimension.MeanRate, meter.meanRate())
+    sendGauge(name, Dimension.Rate1Min, meter.oneMinuteRate())
+    sendGauge(name, Dimension.Rate5Min, meter.fiveMinuteRate())
+    sendGauge(name, Dimension.Rate15Min, meter.fifteenMinuteRate())
   }
 
   private def processSampling(name: String, sampling: Sampling): Unit = {
     val snapshot = sampling.getSnapshot
 
-    sendGauge(name, "median", snapshot.getMedian)
-    sendGauge(name, "p75", snapshot.get75thPercentile())
-    sendGauge(name, "p95", snapshot.get95thPercentile())
-    sendGauge(name, "p98", snapshot.get98thPercentile())
-    sendGauge(name, "p99", snapshot.get99thPercentile())
-    sendGauge(name, "p999", snapshot.get999thPercentile())
+    sendGauge(name, Dimension.Median, snapshot.getMedian)
+    sendGauge(name, Dimension.Percentile75, snapshot.get75thPercentile())
+    sendGauge(name, Dimension.Percentile95, snapshot.get95thPercentile())
+    sendGauge(name, Dimension.Percentile98, snapshot.get98thPercentile())
+    sendGauge(name, Dimension.Percentile99, snapshot.get99thPercentile())
+    sendGauge(name, Dimension.Percentile999, snapshot.get999thPercentile())
   }
+
+  private def statsdHost = s"${ config.host }:${ config.port }"
 
   private implicit def func2BiConsumer[A, B](func: (A, B) => Unit): BiConsumer[A, B] = new BiConsumer[A, B] {
     override def accept(t: A, u: B): Unit = func.apply(t, u)

@@ -20,21 +20,21 @@ class KafkaStatsdReporter extends KafkaMetricsReporter with Logging {
     logger.info(s"init: built config $config")
   }
 
-  def startReporter(pollingInterval: Int): Unit = {
+  def startReporter(pollingInterval: Int): Unit = this synchronized {
     if (running.get) {
       logger.warn(s"${ KafkaStatsdReporter.Name } is already running")
+    } else if (!config.enabled) {
+      logger.warn(s"${ KafkaStatsdReporter.Name } is not enabled - not starting now")
     } else {
-      synchronized {
-        underlying = new YammerReporterThread(Metrics.defaultRegistry(), config)
-        underlying.start(config.pollingIntervalSecs, TimeUnit.SECONDS)
+      underlying = new YammerReporterThread(Metrics.defaultRegistry(), config)
+      underlying.start(config.pollingIntervalSecs, TimeUnit.SECONDS)
 
-        running.set(true)
-        logger.info(s"${ KafkaStatsdReporter.Name } is now running")
-      }
+      running.set(true)
+      logger.info(s"${ KafkaStatsdReporter.Name } is now running")
     }
   }
 
-  def stopReporter(): Unit = synchronized {
+  def stopReporter(): Unit = this synchronized {
     if (running.get) {
       logger.info(s"stopped ${ KafkaStatsdReporter.Name }")
 

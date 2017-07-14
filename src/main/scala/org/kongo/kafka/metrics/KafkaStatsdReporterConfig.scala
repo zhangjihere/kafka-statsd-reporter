@@ -24,6 +24,8 @@ class KafkaStatsdReporterConfig(props: VerifiableProperties) extends KafkaMetric
 
   val predicate: RegexMetricPredicate = RegexMetricPredicate(include, exclude)
 
+  val dimensions: Set[Dimension] = Dimension.fromConfig(props, s"${ ConfigBase }.dimension.enabled")
+
   private def pattern(key: String): Option[Pattern] = {
     val propsKey = s"${ ConfigBase }.${ key }"
     if (props.containsKey(propsKey))

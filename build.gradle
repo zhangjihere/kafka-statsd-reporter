@@ -33,6 +33,6 @@ dependencies {
 
 shadowJar {
     dependencies {
-        exclude(dependency("org.apache.kafka:kafka_$scalaVersion:$kafkaVersion"))
+        exclude(dependency("org.apache.kafka::$kafkaVersion"))
     }
 }
