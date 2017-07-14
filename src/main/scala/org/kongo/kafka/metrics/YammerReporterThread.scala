@@ -10,27 +10,34 @@ import com.yammer.metrics.core.Metered
 import com.yammer.metrics.core.Metric
 import com.yammer.metrics.core.MetricName
 import com.yammer.metrics.core.MetricProcessor
-import com.yammer.metrics.core.MetricsRegistry
 import com.yammer.metrics.core.Sampling
 import com.yammer.metrics.core.Summarizable
 import com.yammer.metrics.core.Timer
 import com.yammer.metrics.reporting.AbstractPollingReporter
 import kafka.utils.Logging
+import org.kongo.kafka.metrics.config.KafkaStatsdReporterConfig
 
 import scala.language.implicitConversions
 
-private class YammerReporterThread(registry: MetricsRegistry, config: KafkaStatsdReporterConfig)
-  extends AbstractPollingReporter(registry, KafkaStatsdReporter.Name) with MetricProcessor[Long] with Logging {
+private class YammerReporterThread(registry: KafkaMetricsRegistry, config: KafkaStatsdReporterConfig)
+  extends AbstractPollingReporter(registry.registry, KafkaStatsdReporter.Name) with MetricProcessor[Long] with Logging {
 
-  logger.info(s"initializting yammer reporter thread - statsd client connecting to ${ statsdHost }")
+  logger.info(s"initializing yammer reporter thread - statsd client connecting to ${ statsdHost }")
 
   private val statsd = new NonBlockingStatsDClient(config.prefix, config.host, config.port)
 
   override def run(): Unit = {
     val now = System.nanoTime()
+
+    // process yammer metrics first
     getMetricsRegistry.allMetrics().forEach { (name: MetricName, metric: Metric) =>
       if (metric != null && config.predicate.matches(name, metric))
         metric.processWith(this, name, now)
+    }
+
+    // process kafka's metrics now
+    registry.metrics.foreach { case (key, metric) =>
+      statsd.gauge(key, metric.value())
     }
   }
 
@@ -42,19 +49,19 @@ private class YammerReporterThread(registry: MetricsRegistry, config: KafkaStats
   }
 
   override def processHistogram(name: MetricName, histogram: Histogram, time: Long): Unit = {
-    processSum(format(name), histogram)
+    processSum(MetricFormatter.format(name), histogram)
   }
 
   override def processCounter(name: MetricName, counter: Counter, time: Long): Unit = {
-    statsd.gauge(format(name), counter.count())
+    statsd.gauge(MetricFormatter.format(name), counter.count())
   }
 
   override def processMeter(name: MetricName, meter: Metered, time: Long): Unit = {
-    processMetered(format(name), meter)
+    processMetered(MetricFormatter.format(name), meter)
   }
 
   override def processTimer(name: MetricName, timer: Timer, time: Long): Unit = {
-    val formatted = format(name)
+    val formatted = MetricFormatter.format(name)
 
     processSum(formatted, timer)
     processMetered(formatted, timer)
@@ -62,7 +69,7 @@ private class YammerReporterThread(registry: MetricsRegistry, config: KafkaStats
   }
 
   override def processGauge(name: MetricName, gauge: Gauge[_], time: Long): Unit = {
-    val formatted = format(name)
+    val formatted = MetricFormatter.format(name)
 
     gauge.value() match {
       case f: Float =>
@@ -80,12 +87,8 @@ private class YammerReporterThread(registry: MetricsRegistry, config: KafkaStats
       case bd: BigDecimal =>
         statsd.gauge(formatted, bd.doubleValue())
       case unsupported =>
-        logger.warn(s"unsupported value type for Gauge: $unsupported [$formatted, ${ unsupported.getClass }]")
+        logger.debug(s"unsupported value type for Gauge: $unsupported [$formatted, ${ unsupported.getClass }]")
     }
-  }
-
-  private def format(name: MetricName): String = {
-    RegexMetricPredicate.build(name)
   }
 
   private def sendGauge(name: String, dim: Dimension, value: Double): Unit = {

@@ -32,6 +32,10 @@ dependencies {
 }
 
 shadowJar {
+    exclude 'META-INF/maven/**/*'
+    exclude 'scala/**/*'
+    exclude 'org/apache/zookeeper/**/*'
+
     dependencies {
         exclude(dependency("org.apache.kafka::$kafkaVersion"))
     }

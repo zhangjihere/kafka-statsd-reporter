@@ -1,6 +1,6 @@
 package org.kongo.kafka.metrics
 
-import kafka.utils.VerifiableProperties
+import org.kongo.kafka.metrics.config.MetricsConfigBehavior
 
 sealed trait Dimension {
   def name: String
@@ -10,9 +10,9 @@ object Dimension {
   // metered
   case object Count extends Dimension { override val name = "count" }
   case object MeanRate extends Dimension { override val name = "meanRate" }
-  case object Rate1Min extends Dimension { override val name = "1MinuteRate" }
-  case object Rate5Min extends Dimension { override val name = "5MinuteRate" }
-  case object Rate15Min extends Dimension { override val name = "15MinuteRate" }
+  case object Rate1Min extends Dimension { override val name = "rate1m" }
+  case object Rate5Min extends Dimension { override val name = "rate5m" }
+  case object Rate15Min extends Dimension { override val name = "rate15m" }
 
   // summarizable
   case object Min extends Dimension { override val name = "min" }
@@ -48,6 +48,6 @@ object Dimension {
     Percentile999
   )
 
-  def fromConfig(props: VerifiableProperties, prefix: String): Set[Dimension] =
-    Values.filter(dim => props.getBoolean(s"${ prefix }.${ dim.name }", true))
+  def fromConfig(config: MetricsConfigBehavior, prefix: String): Set[Dimension] =
+    Values.filter(dim => config.getBoolean(s"${ prefix }.${ dim.name }", true))
 }

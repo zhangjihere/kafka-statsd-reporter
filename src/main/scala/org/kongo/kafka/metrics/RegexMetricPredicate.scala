@@ -15,17 +15,8 @@ case class RegexMetricPredicate(include: Option[Pattern], exclude: Option[Patter
   }
 
   override def matches(name: MetricName, metric: Metric): Boolean = {
-    val metricName = RegexMetricPredicate.build(name)
+    val metricName = MetricFormatter.format(name)
     matches(metricName)
   }
 }
 
-object RegexMetricPredicate {
-  def build(name: MetricName): String = {
-    val result = new StringBuilder().append(name.getGroup).append('.').append(name.getType).append('.')
-    if (name.hasScope) {
-      result.append(name.getScope).append('.')
-    }
-    result.append(name.getName).toString().replace(' ', '_')
-  }
-}
