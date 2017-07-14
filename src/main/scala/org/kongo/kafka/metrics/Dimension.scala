@@ -29,6 +29,7 @@ object Dimension {
   case object Percentile99 extends Dimension { override val name = "p99" }
   case object Percentile999 extends Dimension { override val name = "p999" }
 
+  /** All supported dimensions */
   val Values: Set[Dimension] = Set(
     Count,
     MeanRate,
@@ -48,6 +49,12 @@ object Dimension {
     Percentile999
   )
 
+  /** Build a set of selected [[org.kongo.kafka.metrics.Dimension]] based on
+    * the given configuration.
+    * @param config configuration to use
+    * @param prefix configuration prefix that is used
+    * @return a set of [[org.kongo.kafka.metrics.Dimension]]
+    */
   def fromConfig(config: MetricsConfigBehavior, prefix: String): Set[Dimension] =
     Values.filter(dim => config.getBoolean(s"${ prefix }.${ dim.name }", true))
 }

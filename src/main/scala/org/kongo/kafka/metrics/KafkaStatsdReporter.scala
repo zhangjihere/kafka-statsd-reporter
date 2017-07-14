@@ -13,6 +13,9 @@ import org.kongo.kafka.metrics.config.KafkaStatsdReporterConfig
 
 import scala.collection.JavaConverters._
 
+/**
+  * Metrics reporter class to ship metrics towards a StatsD backend.
+  */
 class KafkaStatsdReporter extends KafkaMetricsReporter with MetricsReporter with Logging {
   logger.info(s"initializing ${ KafkaStatsdReporter.Name }")
 
