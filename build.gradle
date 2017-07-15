@@ -29,6 +29,8 @@ repositories {
 dependencies {
     compile "com.indeed:java-dogstatsd-client:2.0.11"
     compile "org.apache.kafka:kafka_$scalaVersion:$kafkaVersion"
+
+    testCompile "junit:junit:4.12"
 }
 
 shadowJar {

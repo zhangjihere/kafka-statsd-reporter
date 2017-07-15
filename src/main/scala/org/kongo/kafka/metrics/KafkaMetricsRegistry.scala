@@ -2,7 +2,7 @@ package org.kongo.kafka.metrics
 
 import com.yammer.metrics.Metrics
 import com.yammer.metrics.core.MetricsRegistry
-import org.apache.kafka.common.metrics.KafkaMetric
+import org.apache.kafka.common.Metric
 
 /**
   * Basic wrapper class that encapsulates both the
@@ -13,13 +13,13 @@ import org.apache.kafka.common.metrics.KafkaMetric
   */
 class KafkaMetricsRegistry(val registry: MetricsRegistry) {
   private val sync = new Object
-  private var _metrics = Map.empty[String, KafkaMetric]
+  private var _metrics = Map.empty[String, Metric]
 
   /** Current map of kafka's metrics */
-  def metrics: Map[String, KafkaMetric] = _metrics
+  def metrics: Map[String, Metric] = _metrics
 
   /** Update/insert an updated metric */
-  def update(metric: KafkaMetric): Unit = {
+  def update(metric: Metric): Unit = {
     val key = MetricFormatter.format(metric)
 
     sync synchronized {
@@ -28,7 +28,7 @@ class KafkaMetricsRegistry(val registry: MetricsRegistry) {
   }
 
   /** Remove a metric */
-  def remove(metric: KafkaMetric): Unit = {
+  def remove(metric: Metric): Unit = {
     val key = MetricFormatter.format(metric)
 
     sync synchronized {

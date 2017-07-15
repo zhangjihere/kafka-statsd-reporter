@@ -55,6 +55,8 @@ object Dimension {
     * @param prefix configuration prefix that is used
     * @return a set of [[org.kongo.kafka.metrics.Dimension]]
     */
-  def fromConfig(config: MetricsConfigBehavior, prefix: String): Set[Dimension] =
-    Values.filter(dim => config.getBoolean(s"${ prefix }.${ dim.name }", true))
+  def fromConfig(config: MetricsConfigBehavior, prefix: String): Set[Dimension] = {
+    val keyPrefix = if (prefix != null && prefix.nonEmpty) prefix + "." else ""
+    Values.filter(dim => config.getBoolean(s"${ keyPrefix }${ dim.name }", true))
+  }
 }

@@ -1,7 +1,7 @@
 package org.kongo.kafka.metrics
 
 import com.yammer.metrics.core.MetricName
-import org.apache.kafka.common.metrics.KafkaMetric
+import org.apache.kafka.common.Metric
 
 /**
   * Metrics formatting functions
@@ -9,8 +9,8 @@ import org.apache.kafka.common.metrics.KafkaMetric
 object MetricFormatter {
   val KafkaPrefix = "kafka."
 
-  /** Build a metrics string based on a [[org.apache.kafka.common.metrics.KafkaMetric]] */
-  def format(metric: KafkaMetric): String =
+  /** Build a metrics string based on a [[org.apache.kafka.common.Metric]] */
+  def format(metric: Metric): String =
     KafkaPrefix + metric.metricName().group() + "." + metric.metricName().name()
 
   /** Build a metrics string based on a [[com.yammer.metrics.core.MetricName]] */
