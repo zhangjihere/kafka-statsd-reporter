@@ -1,6 +1,8 @@
 
 # kafka-statsd-reporter
 
+[![build status](https://api.travis-ci.org/kongo2002/kafka-statsd-reporter.svg)][travis]
+
 Metrics reporter that exposes kafka's metrics to StatsD.
 
 ## Build
@@ -100,3 +102,4 @@ those two.
 
 
 [yammer]: http://metrics.codahale.com/getting-started/
+[travis]: https://travis-ci.org/kongo2002/kafka-statsd-reporter/
