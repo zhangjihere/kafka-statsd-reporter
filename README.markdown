@@ -93,7 +93,8 @@ those two.
 
 ### Other metrics reporters
 
-- [kafka-statsd-metrics2](https://github.com/airbnb/kafka-statsd-metrics2) by airbnb
+- [kafka-statsd-metrics2](https://github.com/airbnb/kafka-statsd-metrics2) by
+  airbnb
 - [kafka-graphite](https://github.com/apakulov/kafka-graphite) by apakulov
 - [kafka-metrics-reporter](https://github.com/krux/kafka-metrics-reporter) by
   krux
@@ -101,5 +102,25 @@ those two.
   damienclaveau
 
 
+## Maintainer
+
+The project is written by Gregor Uhlenheuer. You can reach me at
+[kongo2002@gmail.com][mail]
+
+
+## License
+
+*kafka-statsd-reporter* is licensed under the [Apache license][apache], Version
+2.0
+
+> Unless required by applicable law or agreed to in writing, software
+> distributed under the License is distributed on an "AS IS" BASIS,
+> WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+> See the License for the specific language governing permissions and
+> limitations under the License.
+
+
 [yammer]: http://metrics.codahale.com/getting-started/
 [travis]: https://travis-ci.org/kongo2002/kafka-statsd-reporter/
+[mail]: mailto:kongo2002@gmail.com
+[apache]: http://www.apache.org/licenses/LICENSE-2.0
