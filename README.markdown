@@ -21,9 +21,11 @@ with that version but should work with kafka >= 0.9 as well.
 After building (or downloading) the shadow JAR you can copy the JAR file to
 your kafka broker's `libs` folder.
 
-    # given your kafka broker is installed in /opt/kafka you would
-    # do something like this:
-    cp build/libs/kafka-statsd-reporter-0.1-all.jar /opt/kafka/libs
+```bash
+# given your kafka broker is installed in /opt/kafka you would
+# do something like this:
+cp build/libs/kafka-statsd-reporter-0.1-all.jar /opt/kafka/libs
+```
 
 
 ## Configuration
@@ -31,7 +33,7 @@ your kafka broker's `libs` folder.
 You may put some of the configuration values below in your broker's
 configuration (typically `server.properties`):
 
-```conf
+```ini
 # register the metrics reporter
 metric.reporters=org.kongo.kafka.metrics.KafkaStatsdReporter
 
