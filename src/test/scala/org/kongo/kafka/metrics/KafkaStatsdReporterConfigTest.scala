@@ -18,6 +18,24 @@ class KafkaStatsdReporterConfigTest {
     testDefaults(config)
   }
 
+  @Test
+  def stringPortVerifiableProperties(): Unit = {
+    val config = TestUtils.singletonVerifiablePropertiesBehavior("port", "8989")
+    Assert.assertEquals(8989, config.getInt("port", 8125))
+  }
+
+  @Test
+  def stringPortPropertiesMap(): Unit = {
+    val config = TestUtils.singletonMapConfigBehavior("port", "8989")
+    Assert.assertEquals(8989, config.getInt("port", 8125))
+  }
+
+  @Test
+  def invalidPortPropertiesMap(): Unit = {
+    val config = TestUtils.singletonMapConfigBehavior("port", "invalid")
+    Assert.assertEquals(8125, config.getInt("port", 8125))
+  }
+
   private def testDefaults(config: KafkaStatsdReporterConfig): Unit = {
     Assert.assertEquals("localhost", config.host)
     Assert.assertEquals(8125, config.port)

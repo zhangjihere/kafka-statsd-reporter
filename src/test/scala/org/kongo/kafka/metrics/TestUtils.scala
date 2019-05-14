@@ -36,6 +36,10 @@ object TestUtils {
     new VerifiableConfigBehavior(props)
   }
 
+  def singletonMapConfigBehavior(key: String, value: String): PropertiesMapBehavior = {
+    new PropertiesMapBehavior(Collections.singletonMap(key, value))
+  }
+
   def emptyMapConfig: KafkaStatsdReporterConfig =
     KafkaStatsdReporterConfig(Collections.emptyMap[String, String]())
 
