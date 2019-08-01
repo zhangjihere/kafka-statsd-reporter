@@ -1,18 +1,12 @@
 package org.kongo.kafka.metrics
 
+import java.text.NumberFormat
+import java.util
+import java.util.Locale
 import java.util.function.BiConsumer
 
 import com.timgroup.statsd.NonBlockingStatsDClient
-import com.yammer.metrics.core.Counter
-import com.yammer.metrics.core.Gauge
-import com.yammer.metrics.core.Histogram
-import com.yammer.metrics.core.Metered
-import com.yammer.metrics.core.Metric
-import com.yammer.metrics.core.MetricName
-import com.yammer.metrics.core.MetricProcessor
-import com.yammer.metrics.core.Sampling
-import com.yammer.metrics.core.Summarizable
-import com.yammer.metrics.core.Timer
+import com.yammer.metrics.core.{VirtualMachineMetrics, _}
 import com.yammer.metrics.reporting.AbstractPollingReporter
 import kafka.utils.Logging
 import org.kongo.kafka.metrics.config.KafkaStatsdReporterConfig
@@ -25,6 +19,8 @@ private class YammerReporterThread(registry: KafkaMetricsRegistry, config: Kafka
   logger.info(s"initializing yammer reporter thread - statsd client connecting to ${ statsdHost }")
 
   private val statsd = new NonBlockingStatsDClient(config.prefix, config.host, config.port)
+
+  private val vm = VirtualMachineMetrics.getInstance()
 
   override def run(): Unit = {
     val now = System.nanoTime()
@@ -39,6 +35,13 @@ private class YammerReporterThread(registry: KafkaMetricsRegistry, config: Kafka
     registry.metrics.foreach { case (key, metric) =>
       statsd.gauge(key, metric.value())
     }
+    statsd.gauge("jvm.heap_init", vm.heapInit())
+    statsd.gauge("jvm.heap_used", vm.heapUsed())
+    statsd.gauge("jvm.heap_max", vm.heapMax())
+    statsd.gauge("jvm.heap_usage", vm.heapUsage())
+    statsd.gauge("jvm.total_init", vm.totalInit())
+    statsd.gauge("jvm.total_used", vm.totalUsed())
+    statsd.gauge("jvm.total_max", vm.totalMax())
   }
 
   override def shutdown(): Unit = {

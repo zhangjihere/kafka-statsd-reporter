@@ -18,8 +18,8 @@ apply plugin: 'scala'
 apply plugin: 'java'
 
 ext {
-    scalaVersion = '2.11'
-    kafkaVersion = '0.11.0.0'
+    scalaVersion = '2.12'
+    kafkaVersion = '0.11.0.1'
 }
 
 repositories {
