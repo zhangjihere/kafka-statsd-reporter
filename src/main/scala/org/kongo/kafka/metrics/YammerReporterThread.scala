@@ -22,6 +22,8 @@ private class YammerReporterThread(registry: KafkaMetricsRegistry, config: Kafka
 
   private val vm = VirtualMachineMetrics.getInstance()
 
+  private val hostname = System.getenv("HOSTNAME")
+
   override def run(): Unit = {
     val now = System.nanoTime()
 
@@ -35,13 +37,13 @@ private class YammerReporterThread(registry: KafkaMetricsRegistry, config: Kafka
     registry.metrics.foreach { case (key, metric) =>
       statsd.gauge(key, metric.value())
     }
-    statsd.gauge("jvm.heap_init", vm.heapInit())
-    statsd.gauge("jvm.heap_used", vm.heapUsed())
-    statsd.gauge("jvm.heap_max", vm.heapMax())
-    statsd.gauge("jvm.heap_usage", vm.heapUsage())
-    statsd.gauge("jvm.total_init", vm.totalInit())
-    statsd.gauge("jvm.total_used", vm.totalUsed())
-    statsd.gauge("jvm.total_max", vm.totalMax())
+    statsd.gauge(hostname + ".jvm.heap_init", vm.heapInit())
+    statsd.gauge(hostname + ".jvm.heap_used", vm.heapUsed())
+    statsd.gauge(hostname + ".jvm.heap_max", vm.heapMax())
+    statsd.gauge(hostname + ".jvm.heap_usage", vm.heapUsage())
+    statsd.gauge(hostname + ".jvm.total_init", vm.totalInit())
+    statsd.gauge(hostname + ".jvm.total_used", vm.totalUsed())
+    statsd.gauge(hostname + ".jvm.total_max", vm.totalMax())
   }
 
   override def shutdown(): Unit = {
